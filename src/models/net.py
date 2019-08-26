@@ -89,7 +89,7 @@ class SPPNet(nn.Module, SegmentatorTTA):
         assert enc_type in ['xception65', 'mobilenetv2']
         assert dec_type in ['oc_base', 'oc_asp', 'spp', 'aspp', 'maspp']
 
-        self.encoder = create_encoder(enc_type, output_stride=output_stride, pretrained=False)
+        self.encoder = create_encoder(enc_type, output_stride=output_stride, pretrained=True)
         if enc_type == 'mobilenetv2':
             self.spp = create_mspp(dec_type)
         else:
@@ -108,11 +108,6 @@ class SPPNet(nn.Module, SegmentatorTTA):
             x = self.decoder(x, low_level_feat)
             x = self.logits(x)
             return x
-
-    def update_bn_eps(self):
-        for m in self.encoder.named_modules():
-            if isinstance(m[1], nn.BatchNorm2d):
-                m[1].eps = 1e-3
 
     def freeze_bn(self):
         for m in self.modules():

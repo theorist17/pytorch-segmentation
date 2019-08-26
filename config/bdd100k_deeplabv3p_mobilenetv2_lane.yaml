@@ -1,0 +1,21 @@
+Net:
+  enc_type: 'mobilenetv2'
+  dec_type: 'maspp'
+  output_stride: 8
+  output_channels: 4
+Data:
+  dataset: 'bdd100k2'
+  target_size: (256, 256)
+Train:
+  max_epoch: 20000
+  batch_size: 10
+  fp16: True
+  resume: False
+  pretrained_path: False
+Loss:
+  loss_type: 'Lovasz'
+  ignore_index: 4
+Optimizer:
+  mode: 'sgd'
+  base_lr: 0.007
+  t_max: 30

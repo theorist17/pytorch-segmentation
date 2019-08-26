@@ -87,7 +87,7 @@ class ApolloscapeDataset(Dataset):
         resized = self.resizer(image=img, mask=lbl)
         img, lbl = resized['image'], resized['mask']
 
-        if self.split == 'train':
+        if self.split != 'valid':
             augmented = self.augmenter(image=img, mask=lbl)
             img, lbl = augmented['image'], augmented['mask']
 
@@ -97,7 +97,7 @@ class ApolloscapeDataset(Dataset):
             img = self.img_transformer(img)
             lbl = self.lbl_transformer(lbl)
 
-        return img, lbl, img_path.stem
+        return img, lbl
 
 
 if __name__ == '__main__':
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     print(len(dataset))
 
     for i, batched in enumerate(dataloader):
-        images, labels, _ = batched
+        images, labels = batched
         if i == 0:
             fig, axes = plt.subplots(8, 2, figsize=(10, 30))
             plt.tight_layout()

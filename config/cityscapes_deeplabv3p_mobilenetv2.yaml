@@ -1,0 +1,20 @@
+Net:
+  enc_type: 'mobilenetv2'
+  dec_type: 'maspp'
+  output_stride: 8
+Data:
+  dataset: 'cityscapes'
+  target_size: (728, 728)
+Train:
+  max_epoch: 60
+  batch_size: 2
+  fp16: True
+  resume: True
+  pretrained_path: False
+Loss:
+  loss_type: 'Lovasz'
+  ignore_index: 255
+Optimizer:
+  mode: 'sgd'
+  base_lr: 0.007
+  t_max: 30

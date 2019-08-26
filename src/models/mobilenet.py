@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
+import torch.utils.model_zoo as model_zoo
 from collections import OrderedDict
 
 
@@ -103,5 +104,14 @@ class MobileNetV2(nn.Module):
         return x
 
     def load_pretrained_model(self, model_path):
-        self.load_state_dict(torch.load(model_path))
-        print(f'Load from {model_path}!')
+        #self.load_state_dict(torch.load(model_path))
+        #print(f'Load from {model_path}!')
+        pretrain_dict = model_zoo.load_url('http://jeff95.me/models/mobilenet_v2-6a65762b.pth')
+        model_dict = {}
+        state_dict = self.state_dict()
+        for k, v in pretrain_dict.items():
+            if k in state_dict:
+                model_dict[k] = v
+        state_dict.update(model_dict)
+        self.load_state_dict(state_dict)
+        print(f'Load from model_zoo!')

@@ -1,0 +1,21 @@
+Net:
+  enc_type: 'xception65'
+  dec_type: 'aspp'
+  output_stride: 8
+  output_channels: 4
+Data:
+  dataset: 'avm'
+  target_size: (320, 160)
+Train:
+  max_epoch: 10000
+  batch_size: 10
+  fp16: True
+  resume: True
+  pretrained_path: False
+Loss:
+  loss_type: 'Lovasz'
+  ignore_index: 255
+Optimizer:
+  mode: 'sgd'
+  base_lr: 0.007
+  t_max: 30

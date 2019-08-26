@@ -25,7 +25,6 @@ from utils.metrics import compute_iou_batch
 
 parser = argparse.ArgumentParser()
 parser.add_argument('config_path')
-parser.add_argument('-device_id', default='0')
 args = parser.parse_args()
 config_path = Path(args.config_path)
 config = yaml.load(open(config_path))
@@ -34,8 +33,7 @@ data_config = config['Data']
 train_config = config['Train']
 loss_config = config['Loss']
 opt_config = config['Optimizer']
-device = torch.device('cuda:'+args.device_id if torch.cuda.is_available() else 'cpu')
-torch.cuda.set_device(device)
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 t_max = opt_config['t_max']
 
 max_epoch = train_config['max_epoch']
@@ -61,18 +59,6 @@ elif dataset == 'cityscapes':
     from dataset.cityscapes import CityscapesDataset as Dataset
     net_config['output_channels'] = 19
     classes = np.arange(1, 19)
-elif dataset == 'bdd100k':
-    from dataset.bdd100k import BDD100KDataset as Dataset
-    net_config['output_channels'] = 3 
-    classes = np.arange(1, 3)
-elif dataset == 'bdd100k2':
-    from dataset.bdd100k2 import BDD100K2Dataset as Dataset
-    net_config['output_channels'] = 4
-    classes = np.arange(1, 4)
-elif dataset == 'avm':
-    from dataset.avm import AVMDataset as Dataset
-    net_config['output_channels'] = 4
-    classes = np.arange(1, 4)
 else:
     raise NotImplementedError
 del data_config['dataset']
@@ -111,14 +97,13 @@ else:
 
 # Dataset
 affine_augmenter = albu.Compose([albu.HorizontalFlip(p=.5),
-                             # Rotate(5, p=.5)
-                             ])
+                                 # Rotate(5, p=.5)
+                                 ])
 # image_augmenter = albu.Compose([albu.GaussNoise(p=.5),
 #                                 albu.RandomBrightnessContrast(p=.5)])
 image_augmenter = None
-#print(data_config)
 train_dataset = Dataset(affine_augmenter=affine_augmenter, image_augmenter=image_augmenter,
-                    net_type=net_type, **data_config)
+                        net_type=net_type, **data_config)
 valid_dataset = Dataset(split='valid', net_type=net_type, **data_config)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4,
                           pin_memory=True, drop_last=True)
@@ -164,28 +149,20 @@ for i_epoch in range(start_epoch, max_epoch):
     with tqdm(train_loader) as _tqdm:
         for batched in _tqdm:
             images, labels = batched
-            #print("Lables loaded to train : ", labels.size()) # --> [0, 1, 2] or [0, 1]
-            #print("Labels in cycle", labels[0])
             if fp16:
                 images = images.half()
             images, labels = images.to(device), labels.to(device)
-            #print("Lables backed from gpu : ", labels.size()) # --> [0, 1, 2] or [0, 1]
             optimizer.zero_grad()
             preds = model(images)
-            #print("Output predictions : ", preds.size())
             if net_type == 'deeplab':
                 preds = F.interpolate(preds, size=labels.shape[1:], mode='bilinear', align_corners=True)
             if fp16:
                 loss = loss_fn(preds.float(), labels)
             else:
                 loss = loss_fn(preds, labels)
-            #print("Interpolated predictions : ", preds.size())
 
             preds_np = preds.detach().cpu().numpy()
             labels_np = labels.detach().cpu().numpy()
-            #print("Preds np", preds_np.shape, "Labels", labels_np.shape)
-            #print("Preds", np.unique(np.argmax(preds_np, axis=1)))
-            #print("Labels", np.unique(labels_np))
             iou = compute_iou_batch(np.argmax(preds_np, axis=1), labels_np, classes)
 
             _tqdm.set_postfix(OrderedDict(seg_loss=f'{loss.item():.5f}', iou=f'{iou:.3f}'))
@@ -226,9 +203,7 @@ for i_epoch in range(start_epoch, max_epoch):
                         loss = loss_fn(preds, labels)
 
                     preds_np = preds.detach().cpu().numpy()
-                    #print("Preds", np.unique(preds_np))
                     labels_np = labels.detach().cpu().numpy()
-                    #print("Labels", np.unique(labels_np))
                     iou = compute_iou_batch(np.argmax(preds_np, axis=1), labels_np, classes)
                     valid_losses.append(loss.item())
                     valid_ious.append(iou)

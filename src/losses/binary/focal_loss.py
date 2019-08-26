@@ -16,7 +16,7 @@ class FocalLoss(nn.Module):
 
     def forward(self, preds, labels):
         if self.ignore_index is not None:
-            mask = labels != self.ignore_index
+            mask = labels != self.ignore
             labels = labels[mask]
             preds = preds[mask]
 

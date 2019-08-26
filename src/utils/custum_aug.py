@@ -89,3 +89,4 @@ class PadIfNeededRightBottom(DualTransform):
         pad_height = max(0, self.min_height-img_height)
         pad_width = max(0, self.min_width-img_width)
         return np.pad(img, ((0, pad_height), (0, pad_width)), 'constant', constant_values=self.ignore_index)
+
