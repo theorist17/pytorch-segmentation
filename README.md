@@ -1,8 +1,18 @@
 # PytorchSegmentation
-This repository implements general network for semantic segmentation.  
+
+This repository implements on-road semantic segmentation for autonomous driving. 
+It learned from BDD100K.
+
+Here is what it's gonna do.
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/PRFkXy5JoCs/0.jpg)](https://www.youtube.com/watch?v=PRFkXy5JoCs)
+
+This repository is forked from nyoki-mtl, which implements general network for semantic segmentation.  
 You can train various networks like DeepLabV3+, PSPNet, UNet, etc., just by writing the config file.
 
-![DeepLabV3+](src/eval.png)
+
+
+
 
 ## Pretrained model
 You can run pretrained model converted from [official tensorflow model](https://github.com/tensorflow/models/blob/master/research/deeplab/g3doc/model_zoo.md).  
